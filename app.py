@@ -13,7 +13,8 @@ def weightform():
 
 @app.route("/showall")
 def showall():
-    return render_template("showall.html")
+    weights = [111, 95, 102]  # zatím statické pole
+    return render_template("showall.html", weights=weights)
 
 @app.route("/store")
 def store():
