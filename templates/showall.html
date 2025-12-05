@@ -11,9 +11,8 @@
 		<a href="/weightform">Add new weight</a>
 	</nav>
 	<ul>
-		<li>89</li>
-		<li>90</li>
-		<li>90</li>
-	</ul>
+		{% for w in weights %}
+            <li>{{ w }} kg</li>
+        {% endfor %}	</ul>
 </body>
 </html>
