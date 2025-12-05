@@ -14,7 +14,17 @@ def weightform():
 
 @app.route("/showall")
 def showall():
-    weights = [111, 95, 102]  # zatím statické pole
+    conn = sqlite3.connect(os.path.join(os.path.dirname(__file__), "../health_py.db"))
+    cursor = conn.cursor()
+
+    # načtení všech hodnot z tabulky
+    cursor.execute("SELECT kg FROM weight")
+    rows = cursor.fetchall()
+    conn.close()
+
+    # rows je list tuple [(77,), (66,), ...]
+    weights = [row[0] for row in rows]
+
     return render_template("showall.html", weights=weights)
 
 @app.route("/store")
