@@ -1,4 +1,5 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
+
 
 app = Flask(__name__)
 
@@ -16,7 +17,8 @@ def showall():
 
 @app.route("/store")
 def store():
-    return render_template("store.html")
-
+    weight = request.args.get("weight")
+    return render_template("store.html", weight=weight)
+    
 if __name__ == "__main__":
     app.run(debug=True)
