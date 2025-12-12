@@ -1,8 +1,14 @@
 from flask import Flask, render_template, request
-import sqlite3
+import psycopg2
 import os
 
 app = Flask(__name__)
+
+# connection string k PostgreSQL (Render)
+DB_URL = "postgresql://health_5cnc_user:AYpumENKLgHM2yw3gCFQiHNe4GnkbGLA@dpg-d4u4quili9vc7387ebs0-a.frankfurt-postgres.render.com/health_5cnc"
+
+def get_connection():
+    return psycopg2.connect(DB_URL, sslmode="require")
 
 @app.route("/")
 def landing():
@@ -14,37 +20,28 @@ def weightform():
 
 @app.route("/showall")
 def showall():
-    conn = sqlite3.connect(os.path.join(os.path.dirname(__file__), "../health_py.db"))
+    conn = get_connection()
     cursor = conn.cursor()
 
-    # načtení všech hodnot z tabulky
     cursor.execute("SELECT kg FROM weight")
     rows = cursor.fetchall()
     conn.close()
 
-    # rows je list tuple [(77,), (66,), ...]
     weights = [row[0] for row in rows]
-
     return render_template("showall.html", weights=weights)
 
 @app.route("/store")
 def store():
-    # získání hodnoty z GET parametru
     weight = request.args.get("weight")
 
-    # připojení k databázi (soubor health_py.db je o úroveň výš)
-    conn = sqlite3.connect(os.path.join(os.path.dirname(__file__), "../health_py.db"))
+    conn = get_connection()
     cursor = conn.cursor()
-
-    # vložení hodnoty do tabulky
-    cursor.execute("INSERT INTO weight (kg) VALUES (?)", (weight,))
-
-    # potvrzení změn a zavření spojení
+    cursor.execute("INSERT INTO weight (kg) VALUES (%s)", (weight,))
     conn.commit()
     conn.close()
 
-    # předání hodnoty do šablony
     return render_template("store.html", weight=weight)
-    
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
